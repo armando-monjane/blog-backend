@@ -1,0 +1,76 @@
+version: '3.7'
+services:
+  backend:
+    restart: always
+    container_name: backend
+    build: 
+      context: .
+      target: production-stage
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/dist
+    depends_on:
+      - pg-server
+    networks:
+      - express-pg
+
+  pg-server:
+    image: postgres
+    container_name: pg-server
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    networks:
+      - express-pg
+
+  adminer:
+    image: adminer
+    restart: always
+    depends_on: 
+      - pg-server
+    ports:
+      - 8080:8080
+    networks:
+      - express-pg
+      - express-pg-it
+
+  backend-it:
+    restart: always
+    container_name: backend-it
+    build:
+      context: .
+      target: test-stage
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - pg-server-it
+    networks:
+      - express-pg-it
+
+  pg-server-it:
+    image: postgres
+    container_name: pg-server-it
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: test_db
+    networks:
+      - express-pg-it
+
+networks:
+  express-pg:
+  express-pg-it:
+
+volumes:
+  db-data:

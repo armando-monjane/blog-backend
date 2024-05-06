@@ -1,0 +1,15 @@
+.git
+.gitignore
+.dockerignore
+Dockerfile
+node_modules
+.vscode
+.idea
+.eslintrc
+.editorconfig
+jest.config.js
+**/uploads/**
+db-data
+db-test-data
+.env
+**.DS_Store
